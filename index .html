@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radiometric Dating Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f9; --panel:#ffffff; --panel2:#eceff4; --line:#d3d9e2;
+  --text:#1b2330; --muted:#5a6575;
+  --ember:#e0561a; --teal:#0e8a80; --gold:#a86f00; --bad:#c43838; --good:#1c8450;
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55;font-size:16px}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 70px}
+h1,h2,h3{font-family:var(--serif);font-weight:700;line-height:1.2;margin:0}
+h1{font-size:clamp(26px,4.5vw,36px)}
+h3{font-size:18px;margin:0 0 8px}
+p{margin:0 0 10px}
+.sub{color:var(--muted);max-width:66ch;margin:6px 0 16px}
+.muted{color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--line);margin-bottom:14px}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:6px 14px;font:500 14px var(--sans);cursor:pointer}
+.chip:hover{border-color:var(--muted)}
+.chip.on{border-color:var(--teal);background:rgba(14,138,128,.12);color:#075b54;font-weight:600}
+.btn{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 14px;font:500 14px var(--sans);cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--ember);border-color:var(--ember);color:#fff;font-weight:600}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.score{font-size:14px;color:var(--muted);margin-top:8px}
+.score b{color:var(--text)}
+.meter{height:6px;background:var(--panel2);border-radius:99px;margin-top:6px;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--teal);transition:width .3s}
+@media(prefers-reduced-motion:reduce){.meter i{transition:none}}
+
+details.ref{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+details.ref summary{cursor:pointer;font-weight:600}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left}
+th{background:var(--panel2)}
+td.num,th.num{text-align:right;font-family:var(--mono);font-size:13px}
+.scroll{overflow-x:auto}
+code{font-family:var(--mono);font-size:.92em;color:var(--gold)}
+
+.prob.solved{border-color:var(--good)}
+.prob.revealed{border-color:var(--gold)}
+.ph{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px}
+.pn{font:700 17px var(--serif)}
+.pt{font-size:13px;color:var(--muted)}
+.stt{margin-left:auto;font-size:13px;font-weight:600}
+.stt.good{color:var(--good)} .stt.gold{color:var(--gold)}
+.pq{max-width:70ch}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin:10px 0}
+.row label{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
+input[type=number]{background:#fff;color:var(--text);border:1px solid var(--line);border-radius:7px;padding:8px 10px;font:14px var(--mono);width:150px}
+select{background:#fff;color:var(--text);border:1px solid var(--line);border-radius:7px;padding:8px 10px;font:14px var(--sans)}
+.suffix{align-self:center;color:var(--muted);font-size:14px;padding-top:16px}
+.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:9px 12px;margin:6px 0;cursor:pointer;font:14px var(--sans)}
+.opt:hover:not(:disabled){border-color:var(--teal)}
+.opt.right{border-color:var(--good);background:rgba(28,132,80,.10)}
+.opt.wrong{border-color:var(--bad);background:rgba(196,56,56,.08);opacity:.8}
+.opt:disabled{cursor:default}
+.fb{margin-top:8px;padding:9px 12px;border-radius:8px;font-size:14px;display:none}
+.fb.show{display:block}
+.fb.good{background:rgba(28,132,80,.10);border:1px solid var(--good)}
+.fb.warn{background:rgba(168,111,0,.08);border:1px solid var(--gold)}
+.fb.bad{background:rgba(196,56,56,.08);border:1px solid var(--bad)}
+.box{margin-top:8px;padding:9px 12px;border-left:3px solid var(--teal);background:var(--panel2);border-radius:0 8px 8px 0;font-size:14px;display:none}
+.box.show{display:block}
+.box.sol{border-color:var(--gold)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.scorecard{border-color:var(--teal)}
+.sc-head{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.sc-big{font:700 52px var(--serif);line-height:1;min-width:120px}
+.sc-meta{flex:1;min-width:200px}
+.sc-meta .lab{font:600 16px var(--sans)}
+.sc-name{display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13px;color:var(--muted)}
+.sc-name input{background:#fff;color:var(--text);border:1px solid var(--line);border-radius:7px;padding:6px 10px;font:14px var(--sans);width:220px;max-width:100%}
+.track{position:relative;height:14px;background:var(--panel2);border:1px solid var(--line);border-radius:99px;margin:16px 0 26px}
+.track .fill{height:100%;background:var(--teal);border-radius:99px;width:0;transition:width .4s}
+.track .tk{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--muted)}
+.track .tl{position:absolute;top:19px;transform:translateX(-50%);font:12px var(--mono);color:var(--muted)}
+@media(prefers-reduced-motion:reduce){.track .fill{transition:none}}
+.small{font-size:13px}
+#done .big{font:700 22px var(--serif);margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Radiometric Dating Practice</h1>
+  <p class="sub">Ten problems, new numbers every time. Work each one on paper first, then enter your answer. Every problem checks itself and shows a worked solution.</p>
+
+  <div class="card scorecard" id="scorecard">
+    <div class="sc-head">
+      <div class="sc-big" id="sc-total" aria-live="polite">0%</div>
+      <div class="sc-meta">
+        <div class="lab">Practice score</div>
+        <div class="muted" id="sc-msg"></div>
+        <div class="sc-name"><label for="sc-name">Name</label><input type="text" id="sc-name" placeholder="First and last name"></div>
+      </div>
+    </div>
+    <div class="track" role="img" aria-label="Score progress bar with milestones at 70, 85 and 100 percent"><div class="fill" id="sc-fill"></div>
+      <span class="tk" style="left:70%"></span><span class="tl" style="left:70%">70</span>
+      <span class="tk" style="left:85%"></span><span class="tl" style="left:85%">85</span>
+      <span class="tk" style="left:calc(100% - 2px)"></span><span class="tl" style="left:calc(100% - 10px)">100</span>
+    </div>
+    <div class="scroll" id="sc-rows"></div>
+    <p class="muted small" style="margin-top:8px"><b>How scoring works.</b> Warm-up and Core are worth up to 70 points together. Challenge adds up to 15 (85 total), and Mixed adds up to 15 (100 total). Each problem earns full credit if you get it right on the first try, 75% if you get it right on a later try, and 0 if you view the worked solution. Your best set for each level counts, so you can retry any level with new numbers.</p>
+    <div class="ctl"><button class="btn" id="sc-reset">Reset my score</button><span class="muted small" id="sc-save"></span></div>
+  </div>
+
+  <details class="ref">
+    <summary>Reference: half-lives and decay fractions</summary>
+    <div class="scroll"><table>
+      <tr><th>Isotope</th><th class="num">Half-life</th><th>Found in</th></tr>
+      <tr><td>Carbon-14 → Nitrogen-14</td><td class="num">5,730 years</td><td>Once-living material</td></tr>
+      <tr><td>Uranium-235 → Lead-207</td><td class="num">704 million years</td><td>Minerals in igneous rock</td></tr>
+      <tr><td>Potassium-40 → Argon-40</td><td class="num">1.25 billion years</td><td>Minerals in igneous rock</td></tr>
+      <tr><td>Uranium-238 → Lead-206</td><td class="num">4.468 billion years</td><td>Minerals in igneous rock</td></tr>
+      <tr><td>Rubidium-87 → Strontium-87</td><td class="num">48.8 billion years</td><td>Minerals in rock</td></tr>
+    </table></div>
+    <div class="scroll"><table>
+      <tr><th>Half-lives (n)</th><th class="num">0</th><th class="num">1</th><th class="num">2</th><th class="num">3</th><th class="num">4</th><th class="num">5</th></tr>
+      <tr><th>% parent left</th><td class="num">100</td><td class="num">50</td><td class="num">25</td><td class="num">12.5</td><td class="num">6.25</td><td class="num">3.125</td></tr>
+    </table></div>
+    <p><b>Age = n × half-life.</b> For a non-whole n: <code>n = log(100 ÷ %parent) ÷ log(2)</code>. Percent left after n half-lives: <code>100 × (1/2)^n</code>.</p>
+  </details>
+
+  <div class="bar">
+    <div class="ctl" id="levels"></div>
+    <div class="ctl" style="margin-top:8px">
+      <button class="btn primary" id="newset">New problem set</button>
+      <span class="muted" id="leveldesc" style="font-size:14px"></span>
+    </div>
+    <div class="score" id="score"></div>
+    <div class="meter" aria-hidden="true"><i id="meter"></i></div>
+  </div>
+
+  <div id="probs"></div>
+  <div id="done"></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+
+/* ---------- helpers ---------- */
+const rint=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const fp=x=>String(+(+x).toFixed(3));
+const UNIT={y:1,my:1e6,by:1e9};
+function fmtYears(y){
+  if(y>=1e9) return (+(y/1e9).toFixed(3))+' billion years';
+  if(y>=1e6) return (+(y/1e6).toFixed(2))+' million years';
+  return Math.round(y).toLocaleString('en-US')+' years';
+}
+function fmtN(n){
+  if(n>=100) return n.toFixed(0);
+  if(n>=1) return n.toFixed(2);
+  if(n>=0.01) return n.toFixed(3);
+  if(n>0) return n.toExponential(1);
+  return '0';
+}
+function chain(n){ return Array.from({length:n+1},(_,k)=>fp(100/Math.pow(2,k))+'%').join(' → '); }
+function countChain(N,n){ return Array.from({length:n+1},(_,k)=>(N/Math.pow(2,k)).toLocaleString('en-US')).join(' → '); }
+const plural=(n,w)=>n+' '+w+(n===1?'':'s');
+
+/* ---------- isotope data ---------- */
+const ISO=[
+  {id:'c14', name:'Carbon-14',    lc:'carbon-14',    dau:'nitrogen-14', half:5730},
+  {id:'u235',name:'Uranium-235',  lc:'uranium-235',  dau:'lead-207',    half:704e6},
+  {id:'k40', name:'Potassium-40', lc:'potassium-40', dau:'argon-40',    half:1.25e9},
+  {id:'u238',name:'Uranium-238',  lc:'uranium-238',  dau:'lead-206',    half:4.468e9},
+  {id:'rb87',name:'Rubidium-87',  lc:'rubidium-87',  dau:'strontium-87',half:48.8e9}
+];
+const iso=id=>ISO.find(i=>i.id===id);
+const MAXN={c14:4,u235:4,k40:3,u238:1};
+const NOUNS={
+  c14:['wooden tool','bone fragment','piece of charcoal','charred seed','mammoth tooth'],
+  u235:['zircon crystal in a volcanic ash bed','zircon crystal in a granite'],
+  k40:['basalt lava flow','volcanic ash bed','granite sample'],
+  u238:['zircon crystal in a meteorite','zircon crystal from an old granite']
+};
+const ALL=['c14','u235','k40','u238'], ROCK=['u235','k40','u238'];
+const pickIso=(list)=>iso(rnd(list||ALL));
+const remain=(i,p)=> i.id==='c14' ? p+'% of the original carbon-14 is left' : p+'% of the original '+i.lc+' is left (the rest has become '+i.dau+')';
+const unitHint=' Use the unit menu next to your answer.';
+
+/* ---------- generators ---------- */
+function gT1(){ // age from % parent (whole half-lives)
+  const i=pickIso(), n=rint(1,MAXN[i.id]), p=100/Math.pow(2,n), age=n*i.half;
+  return {kind:'age',tag:'Age from percent parent',answer:age,tol:0.02,
+    prompt:'A '+rnd(NOUNS[i.id])+' contains '+i.lc+'. A lab finds that '+remain(i,fp(p))+'. How old is the sample?',
+    hint:'Halve 100% over and over until you reach '+fp(p)+'%. The number of halvings is n. Then age = n × half-life ('+fmtYears(i.half)+').'+unitHint,
+    solution:chain(n)+' takes '+plural(n,'halving')+', so n = '+n+'. Age = '+n+' × '+fmtYears(i.half)+' = <b>'+fmtYears(age)+'</b>.'};
+}
+function gT2(){ // time -> % parent
+  const i=pickIso(), n=rint(1,MAXN[i.id]), T=n*i.half, ans=100/Math.pow(2,n);
+  return {kind:'num',tag:'Percent remaining',suffix:'% parent',answer:ans,rel:0.02,abs:0.05,
+    prompt:i.name+' has a half-life of '+fmtYears(i.half)+'. A sample has been decaying for '+fmtYears(T)+'. What percent of the original parent atoms remain?',
+    hint:'First find how many half-lives fit into the elapsed time: n = elapsed time ÷ half-life. Then halve 100% that many times.',
+    solution:'n = '+fmtYears(T)+' ÷ '+fmtYears(i.half)+' = '+n+'. '+chain(n)+', so <b>'+fp(ans)+'%</b> remains.'};
+}
+function gT3n(){ // ratio -> n
+  const n=rint(1,4), d=Math.pow(2,n)-1;
+  return {kind:'num',tag:'Ratio to half-lives',suffix:'half-lives',answer:n,abs:0.01,
+    prompt:'A mineral contains '+plural(d,'daughter atom')+' for every 1 parent atom. Assume it started with no daughter atoms. How many half-lives have passed?',
+    hint:'Add the parts: '+d+' daughter + 1 parent = '+(d+1)+' parts total. What percent of the total is parent? Then count the halvings.',
+    solution:d+' + 1 = '+(d+1)+' parts, and 1 part is parent: '+fp(100/(d+1))+'% parent. '+chain(n)+' takes '+plural(n,'halving')+', so n = <b>'+n+'</b>.'};
+}
+function gT3age(){ // ratio -> age
+  const i=pickIso(ROCK), n=rint(1,MAXN[i.id]), d=Math.pow(2,n)-1, age=n*i.half;
+  return {kind:'age',tag:'Age from ratio',answer:age,tol:0.02,
+    prompt:'A '+rnd(NOUNS[i.id])+' contains '+plural(d,'daughter atom')+' ('+i.dau+') for every 1 parent atom ('+i.lc+'). Assume it started with no daughter atoms. How old is it?',
+    hint:'Find the percent that is parent ('+(d+1)+' total parts, 1 is parent), count the halvings to get n, then multiply by '+fmtYears(i.half)+'.'+unitHint,
+    solution:d+' + 1 = '+(d+1)+' parts, so '+fp(100/(d+1))+'% is parent. '+chain(n)+' gives n = '+n+'. Age = '+n+' × '+fmtYears(i.half)+' = <b>'+fmtYears(age)+'</b>.'};
+}
+function gT4(){ // atom counts
+  const n=rint(1,4), base=rnd([5,10,15,20,25,30,40,50,75,100]), N=base*Math.pow(2,n), askDau=Math.random()<0.5;
+  return {kind:'num',tag:'Counting atoms',suffix:'atoms',answer:askDau?N-base:base,abs:0.5,
+    prompt:'A sample starts with '+N.toLocaleString('en-US')+' parent atoms. After '+plural(n,'half-life')+', how many '+(askDau?'daughter atoms are in the sample?':'parent atoms remain?'),
+    hint:'Cut the number of parent atoms in half once for each half-life.'+(askDau?' Daughter atoms = starting atoms − parent atoms left.':''),
+    solution:'Parent atoms: '+countChain(N,n)+' ('+plural(n,'halving')+'), so '+base.toLocaleString('en-US')+' parent atoms remain.'+(askDau?' Daughter atoms = '+N.toLocaleString('en-US')+' − '+base.toLocaleString('en-US')+' = <b>'+(N-base).toLocaleString('en-US')+'</b>.':' Answer: <b>'+base.toLocaleString('en-US')+'</b>.')};
+}
+function gT5(){ // time -> n
+  const i=pickIso(), n=rint(1,MAXN[i.id]), T=n*i.half;
+  return {kind:'num',tag:'Counting half-lives',suffix:'half-lives',answer:n,abs:0.01,
+    prompt:i.name+' has a half-life of '+fmtYears(i.half)+'. How many half-lives have passed in '+fmtYears(T)+'?',
+    hint:'Divide the elapsed time by the half-life.',
+    solution:'n = '+fmtYears(T)+' ÷ '+fmtYears(i.half)+' = <b>'+n+'</b>.'};
+}
+const CLK_ORG=[800,2400,5000,9000,13000,22000,35000];
+const CLK_ROCK=[300e6,600e6,700e6,1.2e9,2e9,3.5e9,4.5e9];
+function gT6(){ // pick the clock
+  for(let guard=0;guard<50;guard++){
+    const org=Math.random()<0.4, age=rnd(org?CLK_ORG:CLK_ROCK);
+    const ok=ISO.filter(i=>(i.id==='c14')===org).map(i=>({i,n:age/i.half})).filter(o=>o.n>=0.01&&o.n<=10)
+      .sort((a,b)=>Math.abs(Math.log(a.n))-Math.abs(Math.log(b.n)));
+    if(!ok.length) continue;
+    if(ok.length>1 && Math.abs(Math.log(ok[1].n))-Math.abs(Math.log(ok[0].n))<0.2) continue;
+    const best=ok[0].i, others=shuffle(ISO.filter(x=>x!==best)).slice(0,3);
+    const lab=i=>i.name+' (half-life '+fmtYears(i.half)+')';
+    const rows=ISO.map(i=>{ const bad=((i.id==='c14')!==org); return i.name+': '+(bad?'wrong material':'n = '+fmtN(age/i.half)); }).join('; ');
+    return {kind:'mc',tag:'Pick the clock',right:lab(best),wrong:others.map(lab),
+      prompt:'A '+rnd(NOUNS[org?'c14':rnd(ROCK)])+' is estimated to be about '+fmtYears(age)+' old. Which isotope is the best clock for dating it? <span class="muted">(Rule: the clock must fit the material, since carbon-14 only works on once-living things, and its half-life should be closest to the sample\'s age.)</span>',
+      hint:'Decide first whether the sample is once-living or rock. Then compare the age to each half-life. Which half-life is closest?',
+      solution:'The sample is '+(org?'once-living, so only carbon-14 fits':'rock, so carbon-14 is out')+'. Half-lives elapsed (n = age ÷ half-life): '+rows+'. <b>'+best.name+'</b> has n closest to 1, so it is the best match.'};
+  }
+}
+function gT7(){ // counts -> age
+  const i=pickIso(ROCK), n=rint(1,MAXN[i.id]), base=rnd([125,200,250,300,500]), tot=base*Math.pow(2,n), D=tot-base, age=n*i.half;
+  return {kind:'age',tag:'Age from atom counts',answer:age,tol:0.02,
+    prompt:'A mass spectrometer counts '+base.toLocaleString('en-US')+' parent atoms ('+i.lc+') and '+D.toLocaleString('en-US')+' daughter atoms ('+i.dau+') in a '+rnd(NOUNS[i.id])+'. Assume the mineral started with no daughter atoms. How old is it?',
+    hint:'Add parent + daughter to get the original total. What percent of that total is still parent? Then find n.'+unitHint,
+    solution:'Original total = '+base.toLocaleString('en-US')+' + '+D.toLocaleString('en-US')+' = '+tot.toLocaleString('en-US')+'. Parent = '+base+' ÷ '+tot.toLocaleString('en-US')+' = '+fp(100/Math.pow(2,n))+'%. '+chain(n)+' gives n = '+n+'. Age = '+n+' × '+fmtYears(i.half)+' = <b>'+fmtYears(age)+'</b>.'};
+}
+function gT8(){ // bracket
+  const i=pickIso(['u235','k40']), mx=MAXN[i.id], nA=rint(1,2), nB=nA+rint(1,Math.min(2,mx-nA));
+  const pA=100/Math.pow(2,nA), pB=100/Math.pow(2,nB), aA=nA*i.half, aB=nB*i.half, avg=(aA+aB)/2;
+  return {kind:'mc',tag:'Bracket the fossil',
+    right:'Older than '+fmtYears(aA)+' and younger than '+fmtYears(aB),
+    wrong:['Younger than '+fmtYears(aA),'Older than '+fmtYears(aB),'Exactly '+fmtYears(avg)+' old'],
+    prompt:'A fossil-bearing shale lies between two volcanic ash layers. The upper ash has '+fp(pA)+'% of its '+i.lc+' left. The lower ash has '+fp(pB)+'% left. Which statement correctly describes the age of the fossil layer?',
+    hint:'Date each ash layer first. Remember the law of superposition: the lower layer is older. The shale formed after the lower ash and before the upper ash.',
+    solution:'Upper ash: '+fp(pA)+'% gives n = '+nA+', so '+fmtYears(aA)+'. Lower ash: '+fp(pB)+'% gives n = '+nB+', so '+fmtYears(aB)+'. The shale formed after the lower ash and before the upper ash, so it is <b>older than '+fmtYears(aA)+' and younger than '+fmtYears(aB)+'</b>. The shale cannot be dated exactly from these two dates alone.'};
+}
+function pickP(list,id){ const mx=MAXN[id]; const ok=list.filter(p=>Math.log(100/p)/Math.LN2<=mx); return rnd(ok); }
+function gT10(){ // non-integer age
+  const i=pickIso(), p=pickP([75,65,55,45,35,28,18,12],i.id), n=Math.log(100/p)/Math.LN2, age=n*i.half;
+  return {kind:'age',tag:'Age, non-whole half-lives',answer:age,tol:0.07,
+    prompt:'A '+rnd(NOUNS[i.id])+' contains '+i.lc+'. A lab finds that '+remain(i,p)+'. How old is the sample? <span class="muted">(Your answer can be within about 7%.)</span>',
+    hint:'The percent is not a clean halving, so use n = log(100 ÷ %parent) ÷ log(2), or read n from the decay curve in the lab. Then age = n × half-life.'+unitHint,
+    solution:'n = log(100 ÷ '+p+') ÷ log(2) = '+n.toFixed(3)+'. Age = '+n.toFixed(3)+' × '+fmtYears(i.half)+' ≈ <b>'+fmtYears(age)+'</b>.'};
+}
+function gT11(){ // non-integer time -> %
+  const i=pickIso(), k=rnd([0.25,0.5,0.75,1.25,1.5,2.5].filter(x=>x<=MAXN[i.id])), T=k*i.half, ans=100*Math.pow(0.5,k);
+  return {kind:'num',tag:'Percent remaining, partial half-lives',suffix:'% parent',answer:ans,rel:0.03,
+    prompt:i.name+' has a half-life of '+fmtYears(i.half)+'. What percent of the parent atoms remain after '+fmtYears(T)+'? <span class="muted">(Your answer can be within about 3%.)</span>',
+    hint:'Find n = elapsed time ÷ half-life. It is not a whole number, so use 100 × (1/2)^n on a calculator. Check that it lands between the two nearest whole half-life values.',
+    solution:'n = '+fmtYears(T)+' ÷ '+fmtYears(i.half)+' = '+k+'. Percent remaining = 100 × (1/2)^'+k+' ≈ <b>'+ans.toFixed(1)+'%</b>.'};
+}
+function gT13(){ // find the half-life
+  const i=pickIso(), n=rint(1,MAXN[i.id]), p=100/Math.pow(2,n), age=n*i.half;
+  return {kind:'age',tag:'Find the half-life',answer:i.half,tol:0.03,
+    prompt:'A '+rnd(NOUNS[i.id])+' is known to be '+fmtYears(age)+' old from other evidence. It has '+fp(p)+'% of its parent isotope left. What is the half-life of the parent isotope?',
+    hint:'Find n from the percent (count the halvings). Then half-life = age ÷ n.'+unitHint,
+    solution:chain(n)+' gives n = '+n+'. Half-life = '+fmtYears(age)+' ÷ '+n+' = <b>'+fmtYears(i.half)+'</b>, which matches '+i.name+'.'};
+}
+function gT7h(){ // counts, non-integer
+  const i=pickIso(ROCK), p=pickP([80,70,60,40,30,20],i.id), n=Math.log(100/p)/Math.LN2, age=n*i.half, P=p*10, D=1000-P;
+  return {kind:'age',tag:'Age from counts, non-whole half-lives',answer:age,tol:0.07,
+    prompt:'A '+rnd(NOUNS[i.id])+' contains '+P+' parent atoms ('+i.lc+') and '+D+' daughter atoms ('+i.dau+'). Assume no daughter atoms at the start. How old is it? <span class="muted">(Your answer can be within about 7%.)</span>',
+    hint:'Parent ÷ (parent + daughter) gives the fraction left. Convert to a percent, then use n = log(100 ÷ %parent) ÷ log(2).'+unitHint,
+    solution:'Parent = '+P+' ÷ 1,000 = '+p+'%. n = log(100 ÷ '+p+') ÷ log(2) = '+n.toFixed(3)+'. Age = '+n.toFixed(3)+' × '+fmtYears(i.half)+' ≈ <b>'+fmtYears(age)+'</b>.'};
+}
+const CONCEPTS=[
+ {q:'A student says, "If I heat this zircon to 1,000°C, its half-life will get shorter, so its date will be younger." What is wrong with this reasoning?',
+  right:'Half-life is a constant property of the isotope. Heat, pressure, and chemistry do not change it.',
+  wrong:['Heating makes half-lives longer, not shorter.','Half-life depends on the size of the sample, not its temperature.','Nothing is wrong. Labs correct each date for the sample\'s temperature history.'],
+  why:'Half-life is set by the nucleus, not by the surroundings. That constancy is exactly why decay works as a clock. (Heat can make daughter atoms leak out of a mineral, which is a different problem.)'},
+ {q:'A mineral already contained some daughter atoms when it formed. If a scientist assumes it started with none, the calculated age will be:',
+  right:'Too old, because the extra daughter atoms look like extra decay.',
+  wrong:['Too young, because the extra daughter atoms look like less decay.','Exactly right, because the half-life does not change.','Impossible to calculate.'],
+  why:'More daughter relative to parent looks like more half-lives have passed, so the age comes out too old.'},
+ {q:'Over time, some daughter atoms leaked out of a mineral after it formed. The calculated age will be:',
+  right:'Too young, because it looks like less decay has happened.',
+  wrong:['Too old, because the parent atoms were lost.','Exactly right, because leaking does not matter.','The same as the age of the Earth.'],
+  why:'Losing daughter atoms makes the parent-to-daughter ratio look like less time has passed. This is why scientists need a closed system.'},
+ {q:'Why can\'t carbon-14 be used to date a 66-million-year-old dinosaur bone?',
+  right:'After that many half-lives, almost no carbon-14 would be left to measure.',
+  wrong:['Dinosaur bones contain no carbon at all.','Carbon-14 only decays inside living animals.','Carbon-14\'s half-life is too long to show any change.'],
+  why:'66 million years is over 11,000 half-lives of carbon-14 (5,730 years each). Essentially none of the original carbon-14 remains.'},
+ {q:'Why do geologists prefer to date igneous rocks and ash layers rather than sedimentary rocks?',
+  right:'Igneous minerals start their clock when they crystallize, while sedimentary grains come from older rocks.',
+  wrong:['Sedimentary rocks contain no minerals.','Igneous rocks always contain fossils.','Radioactive decay does not happen in sedimentary rocks.'],
+  why:'A date from sedimentary grains would tell you about the older source rocks, not when the layer was deposited. Ash layers above and below let you bracket the age instead.'},
+ {q:'In a large sample, half of the atoms decay in one half-life. What does that tell you about one single atom?',
+  right:'Nothing certain. Each atom has a 50% chance of decaying in one half-life, and its exact timing is random.',
+  wrong:['It will decay exactly at the half-life time.','It cannot decay during the first half-life.','It decays only after half of the atoms around it have decayed.'],
+  why:'Half-life describes a probability for each atom. It predicts large groups very well, but not which atom goes next.'},
+ {q:'Why does a decay curve flatten out instead of dropping in a straight line?',
+  right:'Each half-life removes half of what is left, so the amount removed keeps getting smaller.',
+  wrong:['Decay slows down as the sample cools.','Daughter atoms slowly turn back into parent atoms.','The half-life gets longer over time.'],
+  why:'100 → 50 → 25 → 12.5: the drop is 50, then 25, then 12.5. The half-life itself never changes.'}
+];
+let conceptBag=[];
+function gC(){
+  if(!conceptBag.length) conceptBag=shuffle(CONCEPTS);
+  const c=conceptBag.pop();
+  return {kind:'mc',tag:'Concept check',prompt:c.q,right:c.right,wrong:c.wrong,
+    hint:'Think about what stays constant (the half-life) and what changes (the amounts of parent and daughter).',
+    solution:'<b>'+c.right+'</b> '+c.why};
+}
+
+const LEVELS={
+  warm:{name:'Warm-up',desc:'Whole half-lives, halving, and atom counts.',gens:[gT5,gT2,gT3n,gT4,gT1]},
+  core:{name:'Core',desc:'Ratios, atom counts, clock choice, and bracketing.',gens:[gT1,gT3age,gT6,gT7,gT8,gT4,gC]},
+  hard:{name:'Challenge',desc:'Non-whole half-lives, finding a half-life, and reasoning.',gens:[gT10,gT11,gT13,gT6,gT8,gC,gT7h]},
+  mixed:{name:'Mixed',desc:'A bit of everything.',gens:[gT1,gT2,gT3n,gT3age,gT4,gT5,gT6,gT7,gT8,gT10,gT11,gT13,gT7h,gC]}
+};
+const ORDER=['warm','core','hard','mixed'];
+
+/* ---------- state ---------- */
+const W={warm:35,core:35,hard:15,mixed:15};
+const KEY='radiometric_practice_v1';
+let store={name:'',best:{warm:0,core:0,hard:0,mixed:0}}, canSave=true;
+try{
+  const raw=localStorage.getItem(KEY);
+  if(raw){ const j=JSON.parse(raw); if(j&&j.best){ store.name=String(j.name||'').slice(0,60); ORDER.forEach(k=>{ const v=+j.best[k]; store.best[k]=(v>=0&&v<=10)?v:0; }); } }
+  localStorage.setItem(KEY+'_t','1'); localStorage.removeItem(KEY+'_t');
+}catch(e){ canSave=false; }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(store)); }catch(e){} }
+const earned=k=>W[k]*store.best[k]/10;
+const total=()=>ORDER.reduce((a,k)=>a+earned(k),0);
+const credit=()=>ST.reduce((a,s)=>a+(s.solved?(s.first?1:0.75):0),0);
+const COUNT=10;
+let level='warm', SET=[], ST=[];
+
+function buildSet(){
+  conceptBag=[];
+  const gens=LEVELS[level].gens, list=[];
+  while(list.length<COUNT){ shuffle(gens).forEach(g=>list.push(g)); }
+  SET=list.slice(0,COUNT).map(g=>g());
+  // balance correct-answer positions across multiple-choice items
+  let queue=[];
+  SET.filter(p=>p.kind==='mc').forEach(p=>{
+    if(!queue.length) queue=shuffle([0,1,2,3]);
+    const pos=queue.pop(), arr=shuffle(p.wrong);
+    arr.splice(pos,0,p.right); p.options=arr; p.correctIdx=pos;
+  });
+  ST=SET.map(()=>({tries:0,solved:false,first:false,revealed:false,hint:false,dead:{}}));
+}
+
+/* ---------- render ---------- */
+function renderLevels(){
+  $('#levels').innerHTML=ORDER.map(k=>'<button class="chip'+(k===level?' on':'')+'" data-l="'+k+'">'+LEVELS[k].name+'</button>').join('');
+  $$('#levels .chip').forEach(b=>b.addEventListener('click',()=>{level=b.dataset.l;newSet();}));
+  $('#leveldesc').textContent=LEVELS[level].desc;
+}
+function answerUI(p,i){
+  if(p.kind==='mc'){
+    return '<div id="opts-'+i+'">'+p.options.map((t,oi)=>'<button class="opt" data-i="'+i+'" data-o="'+oi+'">'+String.fromCharCode(65+oi)+'. '+t+'</button>').join('')+'</div>';
+  }
+  let h='<div class="row"><div><label for="in-'+i+'">Your answer</label><input type="number" step="any" id="in-'+i+'"></div>';
+  if(p.kind==='age') h+='<div><label for="un-'+i+'">Units</label><select id="un-'+i+'"><option value="y">years</option><option value="my">million years</option><option value="by">billion years</option></select></div>';
+  else h+='<span class="suffix">'+p.suffix+'</span>';
+  h+='<div><button class="btn primary" id="ck-'+i+'" data-i="'+i+'">Check</button></div></div>';
+  return h;
+}
+function renderProblems(){
+  $('#probs').innerHTML=SET.map((p,i)=>
+    '<div class="card prob" id="pr-'+i+'"><div class="ph"><span class="pn">Problem '+(i+1)+'</span><span class="pt">'+p.tag+'</span><span class="stt" id="st-'+i+'"></span></div>'+
+    '<div class="pq">'+p.prompt+'</div>'+answerUI(p,i)+
+    '<div class="fb" id="fb-'+i+'" role="status"></div>'+
+    '<div class="box" id="hn-'+i+'"><b>Hint.</b> '+p.hint+'</div>'+
+    '<div class="box sol" id="so-'+i+'"><b>Worked solution.</b> '+p.solution+'</div>'+
+    '<div class="tools"><button class="btn" data-hint="'+i+'">Hint</button><button class="btn" data-sol="'+i+'" id="sb-'+i+'" style="display:none">Show worked solution</button></div></div>').join('');
+  $$('.btn[data-i]').forEach(b=>b.addEventListener('click',()=>checkNum(+b.dataset.i)));
+  SET.forEach((p,i)=>{ const inp=$('#in-'+i); if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter') checkNum(i); }); });
+  $$('.opt').forEach(b=>b.addEventListener('click',()=>checkMC(+b.dataset.i,+b.dataset.o)));
+  $$('[data-hint]').forEach(b=>b.addEventListener('click',()=>{ const i=+b.dataset.hint; ST[i].hint=true; $('#hn-'+i).classList.toggle('show'); }));
+  $$('[data-sol]').forEach(b=>b.addEventListener('click',()=>reveal(+b.dataset.sol)));
+}
+function fb(i,cls,msg){ const f=$('#fb-'+i); f.className='fb show '+cls; f.innerHTML=msg; }
+function setStatus(i){
+  const s=ST[i], card=$('#pr-'+i), t=$('#st-'+i);
+  card.classList.toggle('solved',s.solved); card.classList.toggle('revealed',s.revealed&&!s.solved);
+  t.className='stt'+(s.solved?' good':(s.revealed?' gold':''));
+  t.textContent=s.solved?(s.first?'Correct on first try':'Solved'):(s.revealed?'Solution viewed':'');
+  if(s.solved||s.revealed){ $$('#pr-'+i+' input,#pr-'+i+' select,#pr-'+i+' .btn[data-i],#pr-'+i+' .opt').forEach(x=>x.disabled=true); $('#sb-'+i).style.display='none'; }
+}
+function afterWrong(i){
+  const s=ST[i]; s.tries++;
+  if(s.tries===1){ s.hint=true; $('#hn-'+i).classList.add('show'); }
+  if(s.tries>=2) $('#sb-'+i).style.display='';
+}
+function solved(i){
+  const s=ST[i]; s.solved=true; s.first=(s.tries===0);
+  $('#so-'+i).classList.add('show'); $('#hn-'+i).classList.remove('show');
+  setStatus(i); updateScore();
+}
+function reveal(i){
+  const s=ST[i]; if(s.solved) return; s.revealed=true;
+  if(SET[i].kind==='mc'){ const o=$$('#opts-'+i+' .opt')[SET[i].correctIdx]; o.classList.add('right'); }
+  $('#so-'+i).classList.add('show'); setStatus(i); updateScore();
+}
+function checkNum(i){
+  const p=SET[i], s=ST[i]; if(s.solved||s.revealed) return;
+  const v=parseFloat($('#in-'+i).value);
+  if(isNaN(v)){ fb(i,'warn','Enter a number first.'); return; }
+  let ok=false, msg='<b>Not quite.</b> Check your work and try again.';
+  if(p.kind==='age'){
+    const a=v*UNIT[$('#un-'+i).value];
+    ok=Math.abs(a-p.answer)/p.answer<=p.tol;
+    if(!ok){
+      const slip=[1e3,1e6,1e9,1e-3,1e-6,1e-9].some(k=>Math.abs(a*k-p.answer)/p.answer<=p.tol);
+      if(slip) msg='<b>Right digits, wrong units.</b> Check the unit menu (years, million years, billion years).';
+    }
+  } else {
+    ok=Math.abs(v-p.answer)<=Math.max(p.abs||0,(p.rel||0)*Math.abs(p.answer));
+    if(!ok && p.suffix==='% parent' && v>0 && v<1 && Math.abs(v*100-p.answer)<=Math.max(p.abs||0,(p.rel||0)*p.answer)) msg='<b>Close.</b> Enter the answer as a percent (for example, 25 for 25%), not a decimal.';
+  }
+  if(ok){ fb(i,'good','<b>Correct.</b>'); solved(i); }
+  else { afterWrong(i); fb(i,'warn',msg+(s.tries===1?' A hint is open below.':'')); }
+}
+function checkMC(i,o){
+  const p=SET[i], s=ST[i]; if(s.solved||s.revealed) return;
+  const btn=$$('#opts-'+i+' .opt')[o];
+  if(o===p.correctIdx){ btn.classList.add('right'); fb(i,'good','<b>Correct.</b>'); solved(i); }
+  else { btn.classList.add('wrong'); btn.disabled=true; afterWrong(i); fb(i,'warn','<b>Not quite.</b> That option is out. Try another.'+(s.tries===1?' A hint is open below.':'')); }
+}
+function renderScore(){
+  const t=total();
+  $('#sc-total').textContent=Math.round(t)+'%';
+  $('#sc-fill').style.width=Math.min(100,t)+'%';
+  $('#sc-rows').innerHTML='<table><thead><tr><th>Level</th><th class="num">Points possible</th><th class="num">Points earned</th></tr></thead><tbody>'+
+    ORDER.map(k=>'<tr><td>'+LEVELS[k].name+'</td><td class="num">'+W[k]+'</td><td class="num">'+earned(k).toFixed(1)+'</td></tr>').join('')+
+    '</tbody><tfoot><tr><th>Total</th><th class="num">100</th><th class="num">'+t.toFixed(1)+'</th></tr></tfoot></table>';
+  let msg;
+  if(earned('warm')+earned('core')<70-0.001) msg='Warm-up and Core together are worth up to 70.';
+  else if(earned('hard')<15-0.001) msg='Challenge can take you up to 85.';
+  else if(earned('mixed')<15-0.001) msg='Mixed can take you up to 100.';
+  else msg='Full marks on all four levels.';
+  $('#sc-msg').textContent=msg;
+  $('#sc-save').textContent=canSave?'Your best scores are saved in this browser.':'Scores are not saved in this browser. Take a screenshot before you close the page.';
+}
+function updateScore(){
+  const cur=credit();
+  if(cur>store.best[level]+1e-9){ store.best[level]=cur; save(); }
+  renderScore();
+  const sol=ST.filter(s=>s.solved).length, first=ST.filter(s=>s.first).length, fin=ST.filter(s=>s.solved||s.revealed).length;
+  $('#score').innerHTML='Practice score <b>'+Math.round(total())+'%</b> · This set: solved <b>'+sol+'</b> of '+COUNT+', first try <b>'+first+'</b>';
+  $('#meter').style.width=(fin/COUNT*100)+'%';
+  const d=$('#done');
+  if(fin===COUNT){
+    const idx=ORDER.indexOf(level);
+    let nxt='';
+    if(level!=='mixed'){
+      if(first>=8 && idx<2) nxt='Strong set. Ready for <b>'+LEVELS[ORDER[idx+1]].name+'</b>?';
+      else if(first>=8) nxt='Strong set. Try <b>Mixed</b> for a bit of everything.';
+      else nxt='Try another '+LEVELS[level].name+' set. The numbers will be new.';
+    } else nxt='Run another set to keep sharpening.';
+    d.innerHTML='<div class="card" style="border-color:var(--teal)"><div class="big">Set complete</div><p>You solved '+sol+' of '+COUNT+' and got '+first+' right on the first try. Your practice score is now <b>'+Math.round(total())+'%</b>. '+nxt+'</p><div class="ctl"><button class="btn primary" id="again">New problem set</button>'+(level!=='mixed'&&idx<2?'<button class="btn" id="up">Go to '+LEVELS[ORDER[idx+1]].name+'</button>':'')+'</div></div>';
+    $('#again').addEventListener('click',newSet);
+    const up=$('#up'); if(up) up.addEventListener('click',()=>{level=ORDER[idx+1];newSet();});
+  } else d.innerHTML='';
+}
+function newSet(){ buildSet(); renderLevels(); renderProblems(); updateScore(); window.scrollTo({top:0}); }
+$('#newset').addEventListener('click',newSet);
+$('#sc-name').value=store.name;
+$('#sc-name').addEventListener('input',e=>{ store.name=e.target.value.slice(0,60); save(); });
+let resetArmed=null;
+$('#sc-reset').addEventListener('click',()=>{
+  const b=$('#sc-reset');
+  if(!resetArmed){ b.textContent='Click again to erase your score'; resetArmed=setTimeout(()=>{resetArmed=null;b.textContent='Reset my score';},4000); return; }
+  clearTimeout(resetArmed); resetArmed=null; b.textContent='Reset my score';
+  ORDER.forEach(k=>store.best[k]=0); save(); newSet();
+});
+newSet();
+})();
+</script>
+</body>
+</html>
